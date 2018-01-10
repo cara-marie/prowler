@@ -901,9 +901,26 @@ check120(){
 
 check121(){
   # "Ensure IAM instance roles are used for AWS resource access from instances (Not Scored)"
-  textTitle "$ID121" "$TITLE121" "NOT_SCORED" "LEVEL2"
-  textNotice "No command available for check 1.21 "
-  textNotice "See section 1.21 on the CIS Benchmark guide for details "
+  LIST_INSTANCE_PROFILES=$($AWSCLI iam list-instance-profiles --output text $PROFILE_OPT --region $REGION | grep -v "\[\|\]" | cut -d \" -f 2)
+  if [[ $LIST_INSTANCE_PROFILES ]]; then
+    textNotice "Looking for permissive instance profiles:"
+    for profile in $LIST_INSTANCE_PROFILES; do
+      PROFILE_WITH_FULL=$($AWSCLI iam get-instance-profile --output text --instance-profile-name $profile --query "InstanceProfiles[*].Roles.Statement[?Effect == 'Allow' && contains(Resource, '*') || contains (Action, '*')]" $PROFILE_OPT --region $REGION)
+      if [[ $PROFILE_WITH_FULL ]]; then
+        PROFILES_ALLOW_LIST="$PROFILES_ALLOW_LIST $policy"
+      fi
+    done
+    if [[ $PROFILES_ALLOW_LIST ]]; then
+      textNotice "List of custom policies: "
+      for policy in $PROFILE_ALLOW_LIST; do
+        textNotice "Instance profile $profile allows wildcards \"*\""
+      done
+    else
+        textOK "No instance profiles found that contain wildcards \"*\""
+    fi
+  else
+    textOK "No instance profiles found"
+  fi
 }
 
 check122(){
@@ -1853,7 +1870,7 @@ callCheck(){
         extra71;extra72;extra73;extra74;extra75;extra76;extra77
         ;;
       sct2delta )
-        check114;check124;check23;check24;check25;check27;check28;check3;check41;check42;check44;check45;extra71;extra72;extra74;extra76;extra77
+        check114;check121;check124;check23;check24;check25;check27;check28;check3;check41;check42;check44;check45;extra71;extra72;extra74;extra76;extra77
         ;;
       * )
         textWarn "ERROR! Use a valid check name (i.e. check41 or extra71)\n";
