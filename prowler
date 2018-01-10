@@ -1852,6 +1852,9 @@ callCheck(){
       extras )
         extra71;extra72;extra73;extra74;extra75;extra76;extra77
         ;;
+      sct2delta )
+        check114;check124;check23;check24;check25;check27;check28;check3;check41;check42;check44;check45;extra71;extra72;extra74;extra76;extra77
+        ;;
       * )
         textWarn "ERROR! Use a valid check name (i.e. check41 or extra71)\n";
     esac
