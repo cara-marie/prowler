@@ -562,13 +562,14 @@ genCredReport() {
 
 # Save report to a file, decode it, deletion at finish and after every single check
 saveReport(){
-  TEMP_REPORT_FILE=$(mktemp -t prowler-${ACCOUNT_NUM}-XXXXX.cred_report )
+  TEMP_REPORT_FILE=$(mktemp -t prowler-${ACCOUNT_NUM}.cred_report )
   $AWSCLI iam get-credential-report --query 'Content' --output text $PROFILE_OPT --region $REGION | decode_report > $TEMP_REPORT_FILE
   if [[ $KEEPCREDREPORT -eq 1 ]]; then
     textTitle "0.2" "Saving IAM Credential Report ..." "NOT_SCORED" "SUPPORT"
     cp $TEMP_REPORT_FILE .
     textNotice "IAM Credential Report saved in $(pwd)"
   fi
+  exit
 }
 
 # Delete temporary report file
